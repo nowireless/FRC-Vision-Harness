@@ -1,38 +1,38 @@
 #include "VisionSubsystemV2.h"
-//#include "Vision/AxisCamera.h"
 #include <cmath>
-//#include "../Robotmap.h"
-#include "Vision\HSLImage.h"
 
-VisionSubsystemV2::VisionSubsystemV2() {
+#ifndef _WIN32
+#include "../Robotmap.h"
+#include "Vision/AxisCamera.h"
+#endif
+
+VisionSubsystemV2::VisionSubsystemV2() : Subsystem("VisionSubsystemV2") {
 }
     
 void VisionSubsystemV2::InitDefaultCommand() {
-	// Set the default command for a subsystem here.
-	//SetDefaultCommand(new MySpecialCommand());
 }
-
-
-// Put methods for controlling this subsystem
-// here. Call these from Commands.
 
 /*
  * Private Functions
  */
 
-/*
- *	HSLImage *VisionSubsystemV2::getCameraImage() {
- *		AxisCamera &camera = AxisCamera::GetInstance("10.30.81.12");
- *		printf("[VisionSubsystemV2] (getCameraImage) Getting Image from camera\n");
- *		return camera.GetImage();
- *  }
-*/
+#ifndef _WIN32
+HSLImage *VisionSubsystemV2::getCameraImage() {
+	AxisCamera &camera = AxisCamera::GetInstance("10.30.81.12");
+	printf("[VisionSubsystemV2] (getCameraImage) Getting Image from camera\n");
+	return camera.GetImage();
+}
+#endif
+
+
 HSLImage *VisionSubsystemV2::getImageFromcRio() {
 	return new HSLImage("Y:\\testImage.jpeg.jpg");
 }
-HSLImage *VisionSubsystemV2::getImageFromcRio(const char *fileName) {
-	return new HSLImage(fileName);
+
+HSLImage *VisionSubsystemV2::getImageFromFileSystem(const char *filename) {
+	return new HSLImage(filename);
 }
+
 BinaryImage *VisionSubsystemV2::thresholdImage(Threshold &threshold, HSLImage *image) {
 	printf("[VisionSubsystemV2] (thresholdImage) Thresholding Image with %d, %d, %d, %d, %d, %d\n", 
 			threshold.plane1Low,
@@ -41,7 +41,7 @@ BinaryImage *VisionSubsystemV2::thresholdImage(Threshold &threshold, HSLImage *i
 			threshold.plane2High,
 			threshold.plane3Low,
 			threshold.plane3High);
-	BinaryImage *thresHoldedImage = image->ThresholdHSV(threshold);
+	BinaryImage *thresHoldedImage = image->ThresholdHSL(threshold);
 	return thresHoldedImage;
 }
 
@@ -324,47 +324,67 @@ double VisionSubsystemV2::inverseTan(double ratio) {
 	return atan(ratio) * (180 / PI_V2);
 }
 
+#ifndef _WIN32
 void VisionSubsystemV2::toSmartDashDistance(int targetID, double distance) {
-
+	if (targetID == TARGET_HIGH) {
+		SmartDashboard::PutNumber("Vision High target distance", distance);
+	} else if (targetID == TARGET_MIDDLE) {
+		SmartDashboard::PutNumber("Vision Middle Target Distance", distance);
+	} else if (targetID == TARGET_MIDDLE_TWO) {
+		SmartDashboard::PutNumber("Vison Second Middle target distance", distance);
+	}
 }
 
 void VisionSubsystemV2::toSmartDashAzimuth(int targetID, double Azimuth) {
-
+	if (targetID == TARGET_HIGH) {
+		SmartDashboard::PutNumber("Vision High target Azimuth", Azimuth);
+	} else if (targetID == TARGET_MIDDLE) {
+		SmartDashboard::PutNumber("Vision Middle target", Azimuth);
+	} else if (targetID == TARGET_MIDDLE_TWO) {
+		SmartDashboard::PutNumber("Vision Second middle target", Azimuth);
+	}
 }
 
 void VisionSubsystemV2::toSmartDashIsTagetThere(int targetID, bool isThere) {
-
+	if (targetID == TARGET_HIGH) {
+		SmartDashboard::PutBoolean("Vision Is High Target There", isThere);
+	} else if (targetID == TARGET_MIDDLE) {
+		SmartDashboard::PutBoolean("Vision Is Middle target there", isThere);
+	} else if (targetID == TARGET_MIDDLE_TWO) {
+		SmartDashboard::PutBoolean("Vision Is Second MIddle target there", isThere);
+	}
 }
 
 void VisionSubsystemV2::statsToSmartDash() {
-
-}
-
-void VisionSubsystemV2::processImage(HSLImage *image) {
-	printf("[VisionSubsystemV2] (processImage) Starting\n");
-
-		
-	/*Threshold threshold(HUE_MIN,
-						HUE_MAX, 
-						SATURATION_MIN, 
-						SATURATION_MAX, 
-						VALUE_MIN, 
-						VALUE_MAX);
-	*/
+	VisionSubsystemV2::toSmartDashDistance(TARGET_HIGH, this->highTargetDistance);
+	VisionSubsystemV2::toSmartDashDistance(TARGET_MIDDLE, this->middleTargetDistance);
+	VisionSubsystemV2::toSmartDashDistance(TARGET_MIDDLE_TWO, this->middleTargetDistance2);
 	
-	//Old Threshold
-	//Threshold threshold(95, 118, 145, 255, 127, 174); 
+	VisionSubsystemV2::toSmartDashAzimuth(TARGET_HIGH, this->highAzimuth);
+	VisionSubsystemV2::toSmartDashAzimuth(TARGET_MIDDLE, this->middleAzimuth);
+	VisionSubsystemV2::toSmartDashAzimuth(TARGET_MIDDLE_TWO, this->middleAzimuth2);
+	
+	VisionSubsystemV2::toSmartDashIsTagetThere(TARGET_HIGH, this->isHighTargetVisable);
+	VisionSubsystemV2::toSmartDashIsTagetThere(TARGET_MIDDLE, this->isMiddleTargetVisable);
+	VisionSubsystemV2::toSmartDashIsTagetThere(TARGET_MIDDLE_TWO, this->isMiddleTargetVisable2);
+}
+#endif
+void VisionSubsystemV2::processImage(HSLImage *image) {
+	//Threshold threshold(HUE_MIN,
+	//					HUE_MAX, 
+	//					SATURATION_MIN, 
+	//					SATURATION_MAX, 
+	//					VALUE_MIN, 
+	//					VALUE_MAX);
+	//
+ 
 	Threshold   threshold(95, 255, 193, 255, 90, 186);
 	
-	//BinaryImage *thresholdedImage = VisionSubsystemV2::thresholdImage(threshold, image);
-	BinaryImage *thresholdedImage = image->ThresholdHSL(threshold);
-	//thresholdedImage->Write("Y:\\thresholdedImage.bmp");
+	BinaryImage *thresholdedImage = VisionSubsystemV2::thresholdImage(threshold, image);
 	
 	BinaryImage *convexHulledImage = VisionSubsystemV2::convexHullImage(thresholdedImage);
 
-	ParticleFilterCriteria2 criteria[] = {
-			{IMAQ_MT_AREA, AREA_MINIMUM, 65535, false, false}
-	};
+	ParticleFilterCriteria2 criteria[] = { {IMAQ_MT_AREA, AREA_MINIMUM, 65535, false, false} };
 		
 	BinaryImage *filteredImage = VisionSubsystemV2::filterImage(convexHulledImage, criteria);
 
@@ -374,7 +394,6 @@ void VisionSubsystemV2::processImage(HSLImage *image) {
 		
 	VisionSubsystemV2::scoreImage(reports, filteredImage, thresholdedImage);
 		
-		
 	delete filteredImage;
 	delete convexHulledImage;
 	delete thresholdedImage;
@@ -382,9 +401,8 @@ void VisionSubsystemV2::processImage(HSLImage *image) {
 	
 	delete scores;
 	delete reports;
-		
-	printf("[VisionSubsystemV2] (processImage) Ending\n");
 }
+
 
 
 /*
@@ -392,24 +410,33 @@ void VisionSubsystemV2::processImage(HSLImage *image) {
  */
 void VisionSubsystemV2::ProcessCameraImage() {
 	this->isImageProcessed = false;
-	//HSLImage *cameraImage;
-	//cameraImage = VisionSubsystemV2::getCameraImage();
-	//VisionSubsystemV2::processImage(cameraImage);
+#ifndef _WIN32
+	HSLImage *cameraImage;
+	cameraImage = VisionSubsystemV2::getCameraImage();
+	VisionSubsystemV2::processImage(cameraImage);
+	delete cameraImage;
+#endif
 	this->isImageProcessed = true;
 }
 
 void VisionSubsystemV2::ProcesscRIOImage() {
-	printf("[VisionSubsystemV2] (ProcesscRIOImage) Starting\n");
 	this->isImageProcessed = false;
-	HSLImage *cRIOImage = NULL;
-	
+	HSLImage *cRIOImage;
 	cRIOImage = VisionSubsystemV2::getImageFromcRio();
-	printf("Last Error:%d\n", imaqGetLastError);
-	printf("Image H:%d W:%d\n", cRIOImage->GetHeight(), cRIOImage->GetWidth());
-
 	VisionSubsystemV2::processImage(cRIOImage);
-	this->isImageProcessed = true;
 	cRIOImage = NULL;
+	delete cRIOImage;
+	this->isImageProcessed = true;
+}
+
+void VisionSubsystemV2::ProcessImageFromFileSystem(const char *filename) {
+	this->isImageProcessed = false;
+	HSLImage *fileSystemImage;
+	fileSystemImage = VisionSubsystemV2::getImageFromFileSystem(filename);
+	VisionSubsystemV2::processImage(fileSystemImage);
+	fileSystemImage = NULL;
+	delete fileSystemImage;
+	this->isImageProcessed = true;
 }
 
 bool VisionSubsystemV2::IsImageProcessed() {

@@ -5,11 +5,17 @@
 #include "VisionSubsystemV2.h"
 
 
-int _tmain(int argc, _TCHAR* argv[])
-{
+int _tmain(int argc, char *argv[]) {
 	VisionSubsystemV2 *visionSubsystemV2 = new VisionSubsystemV2();
 	
-	
+	visionSubsystemV2->ProcessImageFromFileSystem("Y:\\testImage.jpeg.jpg");
+	printf("High \n\tDistance\t %f\n\tAsimuth \t %f\nMiddle\n \tDistance\t %f\n\tAsimuth \t %f\nSecond Middle\n\tDistance\t %f\n\tAsimuth \t %f",
+		visionSubsystemV2->GetHighTargetDistance(),
+		visionSubsystemV2->GetHighTargetAzimuth(),
+		visionSubsystemV2->GetMiddleTargetDistance(),
+		visionSubsystemV2->GetMiddleTargetAzimuth(),
+		visionSubsystemV2->GetSecondMiddleTargetDistance(),
+		visionSubsystemV2->GetSecondMiddleTargetAzimuth());
 
 	delete visionSubsystemV2;
 	return 0;

@@ -1,16 +1,19 @@
 #ifndef VISIONV2_SUBSYSTEM_H
 #define VISIONV2_SUBSYSTEM_H
-//#include "Commands/Subsystem.h"
+#include "Commands/Subsystem.h"
 #include "Vision/BinaryImage.h"
 #include "Vision/ColorImage.h"
-//#include "Vision/AxisCamera.h"
 //#include "Vision/RGBImage.h"
+#include "Vision/HSLImage.h"
 #include "Vision2009/VisionAPI.h"
-#include "Vision\HSLImage.h"
 #include <string>
 //#include <math.h>
 #include <cmath>
-//#include "WPILib.h"
+
+#ifndef _WIN32
+#include "Vision/AxisCamera.h"
+#include "WPILib.h"
+#endif
 
 #define VISIONSUBSYSTEM_V2_DEBUG 1
 
@@ -82,7 +85,7 @@ struct ScoresV2 {
 		double yEdge;
 };
 
-class VisionSubsystemV2/*: public Subsystem*/ {
+class VisionSubsystemV2: public Subsystem {
 private:
 	// It's desirable that everything possible under private except
 	// for methods that implement subsystem capabilities
@@ -120,8 +123,8 @@ private:
 	//Functions
 	HSLImage *getCameraImage();
 	HSLImage *getImageFromcRio();
-	HSLImage *getImageFromcRio(const char *fileName);
-
+	HSLImage *getImageFromFileSystem(const char *filename);
+	
 	BinaryImage *thresholdImage(Threshold &threshold, HSLImage *image);
 	BinaryImage* convexHullImage(BinaryImage* image);
 	BinaryImage *filterImage(BinaryImage *image, ParticleFilterCriteria2 *criteria);
@@ -149,13 +152,20 @@ private:
 	void toSmartDashIsTagetThere(int targetID, bool isThere);
 	void statsToSmartDash();
 	
+	enum Target {
+		High,
+		Middle,
+		Low
+	};
+	
 public:
 	VisionSubsystemV2();
 	void InitDefaultCommand();
 	
 	void ProcessCameraImage();
 	void ProcesscRIOImage();
-	
+	void ProcessImageFromFileSystem(const char *filename);
+
 	bool IsImageProcessed();
 	
 	

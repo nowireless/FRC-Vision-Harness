@@ -62,6 +62,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="nivision.lib"
+				OutputFile="$(OutDir)\FRCVisionHarness.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;c:\Program Files (x86)\National Instruments\Vision\Lib\MSVC&quot;"
 				GenerateDebugInformation="true"
@@ -287,6 +288,14 @@
 			</File>
 			<File
 				RelativePath=".\Vision2009\VisionAPI.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="Commands"
+			>
+			<File
+				RelativePath=".\Commands\Subsystem.h"
 				>
 			</File>
 		</Filter>
