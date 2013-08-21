@@ -15,8 +15,7 @@
 #include "WPILib.h"
 #endif
 
-#define VISIONSUBSYSTEM_V2_DEBUG 1
-
+#define VISION_DEBUG_PRINTF_ENABLE
 #define TARGET_HIGH 0
 #define TARGET_MIDDLE 1
 #define TARGET_MIDDLE_TWO 2
@@ -93,6 +92,13 @@ private:
 	//Variables
 	ScoresV2 *scores;
 	
+	enum Target {
+		High,
+		Middle,
+		Low
+	};
+
+
 	bool isImageProcessed;
 	
 	bool isHighTargetVisable;
@@ -137,10 +143,10 @@ private:
 	bool scoreCompare(ScoresV2 scores, bool outer);
 	void scoreImage(vector<ParticleAnalysisReport> *reports, BinaryImage *filteredImage, BinaryImage *thresholdedImage);
 	
-	void getTargetStatsOut(ParticleAnalysisReport *report, int targetID, BinaryImage *image);
+	void getTargetStatsOut(ParticleAnalysisReport *report, Target target, BinaryImage *image);
 	void zeroOutStats();
-	double computeTargetDistance(BinaryImage *image, ParticleAnalysisReport *report, bool outer);
-	double computeTargetAzimuth(BinaryImage *image, ParticleAnalysisReport *report, bool highTarget, double targetDistance);
+	double computeTargetDistance(BinaryImage *image, ParticleAnalysisReport *report, VisionSubsystemV2::Target target);
+	double computeTargetAzimuth(BinaryImage *image, ParticleAnalysisReport *report, VisionSubsystemV2::Target target, double targetDistance);
 	
 	void processImage(HSLImage *image);
 	
@@ -152,11 +158,6 @@ private:
 	void toSmartDashIsTagetThere(int targetID, bool isThere);
 	void statsToSmartDash();
 	
-	enum Target {
-		High,
-		Middle,
-		Low
-	};
 	
 public:
 	VisionSubsystemV2();
