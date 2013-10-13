@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;C:\Program Files (x86)\National Instruments\Vision\Include&quot;"
+				AdditionalIncludeDirectories="&quot;C:\Program Files\National Instruments\Vision\Include&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -64,7 +64,7 @@
 				AdditionalDependencies="nivision.lib"
 				OutputFile="$(OutDir)\FRCVisionHarness.exe"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;c:\Program Files (x86)\National Instruments\Vision\Lib\MSVC&quot;"
+				AdditionalLibraryDirectories="&quot;c:\Program Files\National Instruments\Vision\Lib\MSVC&quot;"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				TargetMachine="1"

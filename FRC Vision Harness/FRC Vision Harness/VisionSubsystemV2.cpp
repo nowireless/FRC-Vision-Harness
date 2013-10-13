@@ -46,40 +46,40 @@ BinaryImage *VisionSubsystemV2::thresholdImage(Threshold &threshold, HSLImage *i
 }
 
 BinaryImage *VisionSubsystemV2::convexHullImage(BinaryImage *image){
-#ifndef VISION_DEBUG_PRINTF_ENABLE
+	#ifndef VISION_DEBUG_PRINTF_ENABLE
 	printf("[VisionSubsystemV2] (convexHullImage) COnvex Hulling image\n");
-#endif
+	#endif
 	return image->ConvexHull(false);
 }
 
 BinaryImage *VisionSubsystemV2::filterImage(BinaryImage *image, ParticleFilterCriteria2 *criteria) {
-#ifndef VISION_DEBUG_PRINTF_ENABLE
+	#ifndef VISION_DEBUG_PRINTF_ENABLE
 	printf("[VisionSubsystemV2] (filterImage) Filtering image with the ParticleFilterCriteria\n");
-#endif
+	#endif
 	return image->ParticleFilter(criteria, 1);
 }
 
 vector<ParticleAnalysisReport> *VisionSubsystemV2::particleAnalysisReportOfImage(BinaryImage *image) {
-#ifndef VISION_DEBUG_PRINTF_ENABLE
+	#ifndef VISION_DEBUG_PRINTF_ENABLE
 	printf("[VisionSubsystemV2] (particleAnalysisReportOfImage) Gettting Particle report from Image\n");
-#endif
+	#endif
 	return image->GetOrderedParticleAnalysisReports();
 }
 
 double VisionSubsystemV2::scoreRectangularity(ParticleAnalysisReport *report){
-#ifndef VISION_DEBUG_PRINTF_ENABLE
+	#ifndef VISION_DEBUG_PRINTF_ENABLE
 	printf("[VisionSubsystemV2] (scoreRectangularity) Scoring rectangle\n");
-#endif	
+	#endif	
 	if(report->boundingRect.width*report->boundingRect.height != 0) {
 		double score = 100*report->particleArea/(report->boundingRect.width*report->boundingRect.height);
-#ifndef VISION_DEBUG_PRINTF_ENABLE
+		#ifndef VISION_DEBUG_PRINTF_ENABLE
 		printf("[VisionSubsystemV2] (scoreRectangularity) Score of rectangle is %f\n", score);
-#endif
+		#endif
 		return score;
 	} else {
-#ifndef VISION_DEBUG_PRINTF_ENABLE
+		#ifndef VISION_DEBUG_PRINTF_ENABLE
 		printf("[VisionSubsystemV2] (scoreRectangularity) Not a rectangle with the score the of 0\n");
-#endif
+		#endif
 		return 0;
 	}
 }
@@ -94,9 +94,9 @@ double VisionSubsystemV2::scoreAspectRatio(BinaryImage *image, ParticleAnalysisR
 	} else {
 		idealAspectRatio = (62/20);
 	}
-#ifndef VISION_DEBUG_PRINTF_ENABLE
+	#ifndef VISION_DEBUG_PRINTF_ENABLE
 	printf("[VisionSubsystemV2] (scoreAspectRatio) Using the aspect ratio of %f to score with\n", idealAspectRatio);
-#endif
+	#endif
 	imaqMeasureParticle(image->GetImaqImage(), report->particleIndex, 0, IMAQ_MT_EQUIVALENT_RECT_LONG_SIDE, &rectLong);
 	imaqMeasureParticle(image->GetImaqImage(), report->particleIndex, 0, IMAQ_MT_EQUIVALENT_RECT_SHORT_SIDE, &rectShort);
 	
@@ -106,9 +106,9 @@ double VisionSubsystemV2::scoreAspectRatio(BinaryImage *image, ParticleAnalysisR
 		aspectRatio = 100*(1 - fabs((1 - ((rectShort / rectLong) / idealAspectRatio))));
 	}
 	double score = (max(0.0, min(aspectRatio, 1000.00)));
-#ifndef VISION_DEBUG_PRINTF_ENABLE
+	#ifndef VISION_DEBUG_PRINTF_ENABLE
 	printf("[VisionSubsystemV2] (scoreAspectRatio) The score is %f\n", score);
-#endif
+	#endif
 	return score;
 }
 
@@ -123,9 +123,9 @@ double VisionSubsystemV2::scoreXEdge(BinaryImage *image, ParticleAnalysisReport 
 	}
 	total = 100*total/(averages->columnCount);
 	imaqDispose(averages);
-#ifndef VISION_DEBUG_PRINTF_ENABLE
+	#ifndef VISION_DEBUG_PRINTF_ENABLE
 	printf("[VisionSubsystemV2] (scoreXEdge) The score of the X-edge is %f\n", total);
-#endif
+	#endif
 	return total;
 }
 
@@ -140,9 +140,9 @@ double VisionSubsystemV2::scoreYEdge(BinaryImage *image, ParticleAnalysisReport 
 	}
 	total = 100*total/(averages->rowCount);		//convert to score 0-100
 	imaqDispose(averages);						//let IMAQ dispose of the averages struct
-#ifndef VISION_DEBUG_PRINTF_ENABLE
+	#ifndef VISION_DEBUG_PRINTF_ENABLE
 	printf("[VisionSubsystemV2] (scoreYEdge) The score of the Y-edge is %f\n", total);
-#endif	
+	#endif	
 	return total;
 }
 
@@ -162,57 +162,57 @@ bool VisionSubsystemV2::scoreCompare(ScoresV2 scores, bool outer) {
 
 double VisionSubsystemV2::computeTargetDistance(BinaryImage *image, ParticleAnalysisReport *report, VisionSubsystemV2::Target target) {
 	double rectShort, height, targetHeight = -1;
-#ifndef VISION_DEBUG_PRINTF_ENABLE
+	#ifndef VISION_DEBUG_PRINTF_ENABLE
 	printf("[VisionSubsystemV2] (computeDistance) Image Hight: %d, Image Width: %d\n", image->GetHeight(), image->GetWidth());
-#endif	
+	#endif	
 	if(target == High) {
 		targetHeight = (20.0 / 12.0);
-#ifndef VISION_DEBUG_PRINTF_ENABLE
+		#ifndef VISION_DEBUG_PRINTF_ENABLE
 		printf("[VisionSubsystemV2] (computeDistance) Using High target height %f\n", targetHeight);
-#endif
+		#endif
 	} else if(target == Middle) {
 		targetHeight = (29.0 / 12.0);
-#ifndef VISION_DEBUG_PRINTF_ENABLE
+		#ifndef VISION_DEBUG_PRINTF_ENABLE
 		printf("[VisionSubsystemV2] (computeDistance) Using Middle target height %f\n", targetHeight);
-#endif
+		#endif
 	} else if(target == Low) {
 		targetHeight = (32.0 / 12.0);
-#ifndef VISION_DEBUG_PRINTF_ENABLE
+		#ifndef VISION_DEBUG_PRINTF_ENABLE
 		printf("[VisionSubsystemV2] (computeDistance) Using Low target height %f\n", targetHeight);
-#endif
+		#endif
 	}
 	
 	//imaqMeasureParticle(image->GetImaqImage(), report->particleIndex, 0, IMAQ_MT_EQUIVALENT_RECT_SHORT_SIDE, &rectShort);
 	imaqMeasureParticle(image->GetImaqImage(), report->particleIndex, 0, IMAQ_MT_EQUIVALENT_RECT_SHORT_SIDE_FERET, &rectShort);
-#ifndef VISION_DEBUG_PRINTF_ENABLE
+	#ifndef VISION_DEBUG_PRINTF_ENABLE
 	printf("[VisionSubsystemV2] (computeDistance) imaq rectangle short side is %f\n", rectShort);
-#endif
+	#endif
 
 	double repoertedOfBoundingRect = report->boundingRect.height;
-#ifndef VISION_DEBUG_PRINTF_ENABLE
+	#ifndef VISION_DEBUG_PRINTF_ENABLE
 	printf("[VisionSubsystemV2] (computeDistance) Bounding rectangle heigth %f\n", repoertedOfBoundingRect);
-#endif
+	#endif
 
 	height = min(rectShort, repoertedOfBoundingRect);
-#ifndef VISION_DEBUG_PRINTF_ENABLE
+	#ifndef VISION_DEBUG_PRINTF_ENABLE
 	printf("[VisionSubsystemV2] (computeDistance) The Height being used is %f\n", height);
-#endif
+	#endif
 
 	double tangent = VisionSubsystemV2::tanDegress(VIEW_ANGLE_V2 / 2);
-#ifndef VISION_DEBUG_PRINTF_ENABLE
+	#ifndef VISION_DEBUG_PRINTF_ENABLE
 	printf("[VisionSubsystemV2] (computeDistance) tanget of %f is %f\n", (VIEW_ANGLE_V2 / 2), tangent);
-#endif
+	#endif
 	//double distance = ((((targetHeight / Y_IMAGE_RES) / height ) / 2) / tangent);
 	
 	double FOV = (targetHeight * Y_IMAGE_RES) / height;
-#ifndef VISION_DEBUG_PRINTF_ENABLE
+	#ifndef VISION_DEBUG_PRINTF_ENABLE
 	printf("[VisionSubsystemV2] (computeDistance) Field of view is %f\n", FOV);
-#endif
+	#endif
 
 	double distance = (FOV / 2)/ tangent;
-#ifndef VISION_DEBUG_PRINTF_ENABLE
+	#ifndef VISION_DEBUG_PRINTF_ENABLE
 	printf("[VisionSubsystemV2] (computeDistance) Distance is %f\n", distance);
-#endif
+	#endif
 
 	return distance;
 }
@@ -228,44 +228,44 @@ double VisionSubsystemV2::computeTargetAzimuth(BinaryImage *image, ParticleAnaly
 	} else if(target == Low) {
 		targetWidthFeet = (37.0 / 12.0);
 	}
-#ifndef VISION_DEBUG_PRINTF_ENABLE
+	#ifndef VISION_DEBUG_PRINTF_ENABLE
 	printf("[VisionSubsystemV2] (computeTargetAzimuth) The target width in feet is %f\n", targetWidthFeet);
-#endif
+	#endif
 	
 	imaqMeasureParticle(image->GetImaqImage(), report->particleIndex, 0, IMAQ_MT_EQUIVALENT_RECT_LONG_SIDE, &targetWidthPixelImaq);
-#ifndef VISION_DEBUG_PRINTF_ENABLE
+	#ifndef VISION_DEBUG_PRINTF_ENABLE
 	printf("[VisionSubsystemV2] (computeTargetAzimuth) The imaq pixel width is %f\n", targetWidthPixelImaq);
-#endif
+	#endif
 
 	double targetWidthPixelBoundingRect = report->boundingRect.width;
-#ifndef VISION_DEBUG_PRINTF_ENABLE
+	#ifndef VISION_DEBUG_PRINTF_ENABLE
 	printf("[VisionSubsystemV2] (computeTargetAzimuth) The Bounding rectangle width is %f\n", targetWidthPixelBoundingRect);
-#endif
+	#endif
 
 	double targetWidthPixel = min(targetWidthPixelBoundingRect, targetWidthPixelBoundingRect);
-#ifndef VISION_DEBUG_PRINTF_ENABLE
+	#ifndef VISION_DEBUG_PRINTF_ENABLE
 	printf("[VisionSubsystemV2] (computeTargetAzimuth) The target width being used is %f\n", targetWidthPixel);
-#endif
+	#endif
 
 	double fov = (targetWidthFeet * image->GetWidth()) / targetWidthPixel;
-#ifndef VISION_DEBUG_PRINTF_ENABLE
+	#ifndef VISION_DEBUG_PRINTF_ENABLE
 	printf("[VisionSubsystemV2] (computeTargetAzimuth) The horizontal field of view is %f\n", fov);
-#endif
+	#endif
 
 	double prePreTan = ((report->center_mass_x - (image->GetWidth() / 2)) * (fov / 2)) / image->GetWidth();
-#ifndef VISION_DEBUG_PRINTF_ENABLE
+	#ifndef VISION_DEBUG_PRINTF_ENABLE
 	printf("[VisionSubsystemV2] (computeTargetAzimuth) the distance from teh center in feet is %f\n", prePreTan);
-#endif
+	#endif
 
 	double preTan = prePreTan / targetDistance;
-#ifndef VISION_DEBUG_PRINTF_ENABLE
+	#ifndef VISION_DEBUG_PRINTF_ENABLE
 	printf("[VisionSubsystemV2] (computeTargetAzimuth) The value before tan is %f\n", preTan);
-#endif
+	#endif
 
 	double azimuth = atan(preTan) * (180.0 / PI_V2);
-#ifndef VISION_DEBUG_PRINTF_ENABLE
+	#ifndef VISION_DEBUG_PRINTF_ENABLE
 	printf("[VisionSubsystemV2] (computeTargetAzimuth) the azimuth is %f\n", azimuth);
-#endif
+	#endif
 
 	return azimuth;
 }
@@ -299,9 +299,9 @@ void VisionSubsystemV2::zeroOutStats(){
 
 void VisionSubsystemV2::getTargetStatsOut(ParticleAnalysisReport *report, Target target, BinaryImage *image) {
 	if (target == High) {
-#ifndef VISION_DEBUG_PRINTF_ENABLE
+		#ifndef VISION_DEBUG_PRINTF_ENABLE
 		printf("[VisionSubsystemV2] (getTargetStatsOut) Getting stats out for High target\n");
-#endif
+		#endif
 		this->isHighTargetVisable = true;
 		this->highTargetCenterOfMassX = report->center_mass_x;
 		this->highTargetCenterOfMassY = report->center_mass_y;
@@ -311,9 +311,9 @@ void VisionSubsystemV2::getTargetStatsOut(ParticleAnalysisReport *report, Target
 		
 	} else if (target == Middle) {
 		if (this->isThereSecondMiddleTarget == true) {
-#ifndef VISION_DEBUG_PRINTF_ENABLE
+			#ifndef VISION_DEBUG_PRINTF_ENABLE
 			printf("[VisionSubsystemV2] (getTargetStatsOut) Getting stats out for Second middle target\n");
-#endif
+			#endif
 			this->isMiddleTargetVisable2 = true;
 			this->middleTargetCenterOfMassX2 = report->center_mass_x;
 			this->middleTargetCenterOfMassY2 = report->center_mass_y;
@@ -321,9 +321,9 @@ void VisionSubsystemV2::getTargetStatsOut(ParticleAnalysisReport *report, Target
 			this->middleTargetDistance2 = VisionSubsystemV2::computeTargetDistance(image, report, Middle);
 			this->middleAzimuth2 = VisionSubsystemV2::computeTargetAzimuth(image, report, Middle, this->middleTargetDistance2);
 		} else {
-#ifndef VISION_DEBUG_PRINTF_ENABLE
+			#ifndef VISION_DEBUG_PRINTF_ENABLE
 			printf("[VisionSubsystemV2] (getTargetStatsOut) Getting stats out for Middle target\n");
-#endif
+			#endif
 			this->isThereSecondMiddleTarget = true;
 			this->isMiddleTargetVisable = true;
 			this->middleTargetCenterOfMassX = report->center_mass_x;
