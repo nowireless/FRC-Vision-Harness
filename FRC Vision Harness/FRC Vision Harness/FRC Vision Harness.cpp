@@ -31,6 +31,7 @@ int _tmain(int argc, char *argv[]) {
 		visionSubsystemV2->GetSecondMiddleTargetAzimuth());
 
 	delete visionSubsystemV2;
+	system("pause");
 	return 0;
 }
 

@@ -456,7 +456,6 @@ void VisionSubsystemV2::processImage(HSLImage *image) {
 	delete filteredImage;
 	delete convexHulledImage;
 	delete thresholdedImage;
-	delete image;
 	
 	delete scores;
 	delete reports;
@@ -474,6 +473,7 @@ void VisionSubsystemV2::ProcessCameraImage() {
 	cameraImage = VisionSubsystemV2::getCameraImage();
 	VisionSubsystemV2::processImage(cameraImage);
 	delete cameraImage;
+	cameraImageImage = NULL;
 #endif
 	this->isImageProcessed = true;
 }
@@ -483,8 +483,8 @@ void VisionSubsystemV2::ProcesscRIOImage() {
 	HSLImage *cRIOImage;
 	cRIOImage = VisionSubsystemV2::getImageFromcRio();
 	VisionSubsystemV2::processImage(cRIOImage);
-	cRIOImage = NULL;
 	delete cRIOImage;
+	cRIOImage = NULL;
 	this->isImageProcessed = true;
 }
 
@@ -493,8 +493,8 @@ void VisionSubsystemV2::ProcessImageFromFileSystem(const char *filename) {
 	HSLImage *fileSystemImage;
 	fileSystemImage = VisionSubsystemV2::getImageFromFileSystem(filename);
 	VisionSubsystemV2::processImage(fileSystemImage);
-	fileSystemImage = NULL;
 	delete fileSystemImage;
+	fileSystemImage = NULL;
 	this->isImageProcessed = true;
 }
 
