@@ -18,9 +18,19 @@ void VisionSubsystemV2::InitDefaultCommand() {
 
 #ifndef _WIN32
 HSLImage *VisionSubsystemV2::getCameraImage() {
+	HSLImage *cameraImage = NULL;
+	cameraImage = new HSLImage();
 	AxisCamera &camera = AxisCamera::GetInstance("10.30.81.12");
+	
+	int cameraError = camera.GetImage(cameraImage);
+	if(cameraError == 0) {
+		printf("[VisionSubsystemV2] (getCameraImage) The axis cam protected image buffer is null, returning NULL\n");
+		return NULL;
+	}
+	return cameraImage;
+
 	printf("[VisionSubsystemV2] (getCameraImage) Getting Image from camera\n");
-	return camera.GetImage();
+	
 }
 #endif
 
