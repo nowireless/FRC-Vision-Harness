@@ -16,13 +16,18 @@ void VisionSubsystemV2::InitDefaultCommand() {
  * Private Functions
  */
 
-#ifndef _WIN32
+
 HSLImage *VisionSubsystemV2::getCameraImage() {
 	HSLImage *cameraImage = NULL;
 	cameraImage = new HSLImage();
+	#ifndef _WIN32
 	AxisCamera &camera = AxisCamera::GetInstance("10.30.81.12");
 	
 	int cameraError = camera.GetImage(cameraImage);
+	#else
+	int cameraError = 0;
+	#endif
+	
 	if(cameraError == 0) {
 		printf("[VisionSubsystemV2] (getCameraImage) The axis cam protected image buffer is null, returning NULL\n");
 		return NULL;
@@ -32,7 +37,6 @@ HSLImage *VisionSubsystemV2::getCameraImage() {
 	printf("[VisionSubsystemV2] (getCameraImage) Getting Image from camera\n");
 	
 }
-#endif
 
 
 HSLImage *VisionSubsystemV2::getImageFromcRio() {
@@ -486,13 +490,19 @@ bool VisionSubsystemV2::checkImageForProcessing(HSLImage *image) {
  */
 void VisionSubsystemV2::ProcessCameraImage() {
 	this->isImageProcessed = false;
-#ifndef _WIN32
 	HSLImage *cameraImage;
-	cameraImage = VisionSubsystemV2::getCameraImage();
-	VisionSubsystemV2::processImage(cameraImage);
+	cameraImage = VisionSubsystemV2::getImageFromcRio();
+	
+	if(checkImageForProcessing(cameraImage)) {
+		#ifndef _WIN32
+		VisionSubsystemV2::processImage(cameraImage);
+		#endif
+	} else {
+		printf("[VisionSubsystemV2](ProcessCameraImage) Image did not pass test aborting processing");
+	}
+
 	delete cameraImage;
-	cameraImageImage = NULL;
-#endif
+	cameraImage = NULL;
 	this->isImageProcessed = true;
 }
 
@@ -500,10 +510,13 @@ void VisionSubsystemV2::ProcesscRIOImage() {
 	this->isImageProcessed = false;
 	HSLImage *cRIOImage;
 	cRIOImage = VisionSubsystemV2::getImageFromcRio();
+	
 	if(checkImageForProcessing(cRIOImage)) {
 		VisionSubsystemV2::processImage(cRIOImage);
 	} else {
+		printf("[VisionSubsystemV2](ProcesscRIOImage) Image did not pass test aborting processing");
 	}
+	
 	delete cRIOImage;
 	cRIOImage = NULL;
 	this->isImageProcessed = true;
@@ -513,10 +526,13 @@ void VisionSubsystemV2::ProcessImageFromFileSystem(const char *filename) {
 	this->isImageProcessed = false;
 	HSLImage *fileSystemImage;
 	fileSystemImage = VisionSubsystemV2::getImageFromFileSystem(filename);
+	
 	if(checkImageForProcessing(fileSystemImage)) {
 		VisionSubsystemV2::processImage(fileSystemImage);
 	} else {
+		printf("[VisionSubsystemV2](ProcessImageFromFileSystem) Image did not pass test aborting processing");
 	}
+	
 	delete fileSystemImage;
 	fileSystemImage = NULL;
 	this->isImageProcessed = true;
