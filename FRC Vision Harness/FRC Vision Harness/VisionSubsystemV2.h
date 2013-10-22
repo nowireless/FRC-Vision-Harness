@@ -15,7 +15,7 @@
 #include "WPILib.h"
 #endif
 
-#define VISION_DEBUG_PRINTF_ENABLE
+//#define VISION_DEBUG_PRINTF_ENABLE
 #define TARGET_HIGH 0
 #define TARGET_MIDDLE 1
 #define TARGET_MIDDLE_TWO 2
@@ -158,6 +158,7 @@ private:
 	void toSmartDashIsTagetThere(int targetID, bool isThere);
 	void statsToSmartDash();
 	
+	bool checkImageForProcessing(HSLImage *image);
 	
 public:
 	VisionSubsystemV2();

@@ -461,7 +461,15 @@ void VisionSubsystemV2::processImage(HSLImage *image) {
 	delete reports;
 }
 
-
+bool VisionSubsystemV2::checkImageForProcessing(HSLImage *image) {
+	if(image == NULL) {
+		return false;
+	}
+	if((image->GetHeight() * image->GetWidth()) == 0) {
+		return false;
+	}
+	return true;
+}
 
 /*
  * Public members
@@ -482,7 +490,10 @@ void VisionSubsystemV2::ProcesscRIOImage() {
 	this->isImageProcessed = false;
 	HSLImage *cRIOImage;
 	cRIOImage = VisionSubsystemV2::getImageFromcRio();
-	VisionSubsystemV2::processImage(cRIOImage);
+	if(checkImageForProcessing(cRIOImage)) {
+		VisionSubsystemV2::processImage(cRIOImage);
+	} else {
+	}
 	delete cRIOImage;
 	cRIOImage = NULL;
 	this->isImageProcessed = true;
@@ -492,7 +503,10 @@ void VisionSubsystemV2::ProcessImageFromFileSystem(const char *filename) {
 	this->isImageProcessed = false;
 	HSLImage *fileSystemImage;
 	fileSystemImage = VisionSubsystemV2::getImageFromFileSystem(filename);
-	VisionSubsystemV2::processImage(fileSystemImage);
+	if(checkImageForProcessing(fileSystemImage)) {
+		VisionSubsystemV2::processImage(fileSystemImage);
+	} else {
+	}
 	delete fileSystemImage;
 	fileSystemImage = NULL;
 	this->isImageProcessed = true;
