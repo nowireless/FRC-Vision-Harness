@@ -29,6 +29,10 @@ int _tmain(int argc, char *argv[]) {
 		visionSubsystemV2->GetMiddleTargetAzimuth(),
 		visionSubsystemV2->GetSecondMiddleTargetDistance(),
 		visionSubsystemV2->GetSecondMiddleTargetAzimuth());
+	
+	printf("\n Test to see if the ProcessCameraImage function will fail which if should.\n");
+	visionSubsystemV2->ProcessCameraImage();
+	printf("\n");
 
 	delete visionSubsystemV2;
 	system("pause");
