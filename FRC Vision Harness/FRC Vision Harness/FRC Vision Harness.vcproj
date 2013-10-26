@@ -186,6 +186,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\TargetData.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\TargetScores.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\VisionSubsystemV2.cpp"
 				>
 			</File>
@@ -197,6 +205,14 @@
 			>
 			<File
 				RelativePath=".\stdafx.h"
+				>
+			</File>
+			<File
+				RelativePath=".\TargetData.h"
+				>
+			</File>
+			<File
+				RelativePath=".\TargetScores.h"
 				>
 			</File>
 			<File

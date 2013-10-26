@@ -14,6 +14,7 @@
 #include "Vision/AxisCamera.h"
 #include "WPILib.h"
 #endif
+#include "TargetData.h"
 
 //#define VISION_DEBUG_PRINTF_ENABLE
 #define TARGET_HIGH 0
@@ -137,10 +138,10 @@ private:
 	vector<ParticleAnalysisReport> *particleAnalysisReportOfImage(BinaryImage *image);
 	
 	double scoreRectangularity(ParticleAnalysisReport *report);
-	double scoreAspectRatio(BinaryImage *image, ParticleAnalysisReport *report, bool outer);
+	double scoreAspectRatio(BinaryImage *image, ParticleAnalysisReport *report, Target target);
 	double scoreXEdge(BinaryImage *image, ParticleAnalysisReport *report);
 	double scoreYEdge(BinaryImage *image, ParticleAnalysisReport *report);
-	bool scoreCompare(ScoresV2 scores, bool outer);
+	bool scoreCompare(ScoresV2 scores, Target target);
 	void scoreImage(vector<ParticleAnalysisReport> *reports, BinaryImage *filteredImage, BinaryImage *thresholdedImage);
 	
 	void getTargetStatsOut(ParticleAnalysisReport *report, Target target, BinaryImage *image);

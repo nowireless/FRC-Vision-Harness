@@ -97,15 +97,17 @@ double VisionSubsystemV2::scoreRectangularity(ParticleAnalysisReport *report){
 	}
 }
 
-double VisionSubsystemV2::scoreAspectRatio(BinaryImage *image, ParticleAnalysisReport *report, bool outer) {
+double VisionSubsystemV2::scoreAspectRatio(BinaryImage *image, ParticleAnalysisReport *report, VisionSubsystemV2::Target target) {
 	double	rectLong,
 			rectShort,
 			idealAspectRatio,
 			aspectRatio;
-	if (outer) {
+	if (target == Middle) {
 		idealAspectRatio = (62/29);
-	} else {
+	} else if(target == High){
 		idealAspectRatio = (62/20);
+	} else {
+		return 0;
 	}
 	#ifndef VISION_DEBUG_PRINTF_ENABLE
 	printf("[VisionSubsystemV2] (scoreAspectRatio) Using the aspect ratio of %f to score with\n", idealAspectRatio);
@@ -159,14 +161,15 @@ double VisionSubsystemV2::scoreYEdge(BinaryImage *image, ParticleAnalysisReport 
 	return total;
 }
 
-bool VisionSubsystemV2::scoreCompare(ScoresV2 scores, bool outer) {
+bool VisionSubsystemV2::scoreCompare(ScoresV2 scores, VisionSubsystemV2::Target target) {
 	bool isTarget = true;
 	isTarget &= scores.rectangularity > RECTANGULARITY_LIMIT;
-	if (outer) {
+	if (target == High) {
 		isTarget &= scores.aspectRatioOuter > ASPECT_RATIO_LIMIT;
-	} else {
+	} else if (target == Middle){
 		isTarget &= scores.aspectRatioInner > ASPECT_RATIO_LIMIT;
-	}
+	} else {
+		return false;
 	isTarget &= scores.xEdge > X_EDGE_LIMIT;
 	isTarget &= scores.yEdge > Y_EDGE_LIMIT;
 	
@@ -355,17 +358,17 @@ void VisionSubsystemV2::scoreImage(vector<ParticleAnalysisReport> *reports, Bina
 		for (unsigned i = 0; i < reports->size(); i++) {
 			ParticleAnalysisReport *report = &(reports->at(i));
 			scores[i].rectangularity = VisionSubsystemV2::scoreRectangularity(report);
-			scores[i].aspectRatioOuter = VisionSubsystemV2::scoreAspectRatio(filteredImage, report, true);
-			scores[i].aspectRatioInner = VisionSubsystemV2::scoreAspectRatio(filteredImage, report, false);
+			scores[i].aspectRatioOuter = VisionSubsystemV2::scoreAspectRatio(filteredImage, report, High);
+			scores[i].aspectRatioInner = VisionSubsystemV2::scoreAspectRatio(filteredImage, report, Middle);
 			scores[i].xEdge = VisionSubsystemV2::scoreXEdge(thresholdedImage, report);
 			scores[i].yEdge = VisionSubsystemV2::scoreYEdge(thresholdedImage, report);
 			
-			if (scoreCompare(scores[i], false)) {
+			if (scoreCompare(scores[i], High)) {
 				VisionSubsystemV2::getTargetStatsOut(report, High, thresholdedImage);
 				
 				printf("[VisionSubsystemV2] (scoreImage) Hight target Found Partice:%d Distance:%f\n", i, this->highTargetDistance);
 				printf("[VisionSubsystemV2] (scoreImage) Witdth:%d, Hight:%d\n", report->boundingRect.width, report->boundingRect.height);
-			} else if (scoreCompare(scores[i], true)) {
+			} else if (scoreCompare(scores[i], Middle)) {
 				VisionSubsystemV2::getTargetStatsOut(report, Middle, thresholdedImage);
 				printf("[VisionSubsystemV2] (scoreImage) Middle target Found Partice:%d Distance:%f\n", i, this->middleTargetDistance);
 				printf("[VisionSubsystemV2] (scoreImage) Witdth:%d, Hight:%d\n", report->boundingRect.width, report->boundingRect.height);
@@ -445,14 +448,19 @@ bool VisionSubsystemV2::checkImageForProcessing(HSLImage *image) {
 void VisionSubsystemV2::ProcessCameraImage() {
 	this->isImageProcessed = false;
 	HSLImage *cameraImage;
-	cameraImage = VisionSubsystemV2::getImageFromcRio();
-	
+
+	#ifndef _WIN32
+	cameraImage = VisionSubsystemV2::getCameraImage();
+	#endif
+	cameraImage = NULL;
+
 	if(checkImageForProcessing(cameraImage)) {
+		printf("[VisionSubsystemV2] (ProcessCameraImage) Image is ready to be processed\n");
 		#ifndef _WIN32
 		VisionSubsystemV2::processImage(cameraImage);
 		#endif
 	} else {
-		printf("[VisionSubsystemV2](ProcessCameraImage) Image did not pass test aborting processing");
+		printf("[VisionSubsystemV2](ProcessCameraImage) Image did not pass test aborting processing\n");
 	}
 
 	delete cameraImage;
