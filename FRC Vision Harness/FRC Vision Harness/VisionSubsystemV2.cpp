@@ -35,7 +35,6 @@ HSLImage *VisionSubsystemV2::getCameraImage() {
 	return cameraImage;
 
 	printf("[VisionSubsystemV2] (getCameraImage) Getting Image from camera\n");
-	
 }
 
 
@@ -396,51 +395,6 @@ double VisionSubsystemV2::inverseTan(double ratio) {
 	return atan(ratio) * (180 / PI_V2);
 }
 
-#ifndef _WIN32
-void VisionSubsystemV2::toSmartDashDistance(int targetID, double distance) {
-	if (targetID == TARGET_HIGH) {
-		SmartDashboard::PutNumber("Vision High target distance", distance);
-	} else if (targetID == TARGET_MIDDLE) {
-		SmartDashboard::PutNumber("Vision Middle Target Distance", distance);
-	} else if (targetID == TARGET_MIDDLE_TWO) {
-		SmartDashboard::PutNumber("Vison Second Middle target distance", distance);
-	}
-}
-
-void VisionSubsystemV2::toSmartDashAzimuth(int targetID, double Azimuth) {
-	if (targetID == TARGET_HIGH) {
-		SmartDashboard::PutNumber("Vision High target Azimuth", Azimuth);
-	} else if (targetID == TARGET_MIDDLE) {
-		SmartDashboard::PutNumber("Vision Middle target", Azimuth);
-	} else if (targetID == TARGET_MIDDLE_TWO) {
-		SmartDashboard::PutNumber("Vision Second middle target", Azimuth);
-	}
-}
-
-void VisionSubsystemV2::toSmartDashIsTagetThere(int targetID, bool isThere) {
-	if (targetID == TARGET_HIGH) {
-		SmartDashboard::PutBoolean("Vision Is High Target There", isThere);
-	} else if (targetID == TARGET_MIDDLE) {
-		SmartDashboard::PutBoolean("Vision Is Middle target there", isThere);
-	} else if (targetID == TARGET_MIDDLE_TWO) {
-		SmartDashboard::PutBoolean("Vision Is Second MIddle target there", isThere);
-	}
-}
-
-void VisionSubsystemV2::statsToSmartDash() {
-	VisionSubsystemV2::toSmartDashDistance(TARGET_HIGH, this->highTargetDistance);
-	VisionSubsystemV2::toSmartDashDistance(TARGET_MIDDLE, this->middleTargetDistance);
-	VisionSubsystemV2::toSmartDashDistance(TARGET_MIDDLE_TWO, this->middleTargetDistance2);
-	
-	VisionSubsystemV2::toSmartDashAzimuth(TARGET_HIGH, this->highAzimuth);
-	VisionSubsystemV2::toSmartDashAzimuth(TARGET_MIDDLE, this->middleAzimuth);
-	VisionSubsystemV2::toSmartDashAzimuth(TARGET_MIDDLE_TWO, this->middleAzimuth2);
-	
-	VisionSubsystemV2::toSmartDashIsTagetThere(TARGET_HIGH, this->isHighTargetVisable);
-	VisionSubsystemV2::toSmartDashIsTagetThere(TARGET_MIDDLE, this->isMiddleTargetVisable);
-	VisionSubsystemV2::toSmartDashIsTagetThere(TARGET_MIDDLE_TWO, this->isMiddleTargetVisable2);
-}
-#endif
 void VisionSubsystemV2::processImage(HSLImage *image) {
 	//Threshold threshold(HUE_MIN,
 	//					HUE_MAX, 
