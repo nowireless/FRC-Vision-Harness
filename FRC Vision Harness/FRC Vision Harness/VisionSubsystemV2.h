@@ -15,6 +15,7 @@
 #include "WPILib.h"
 #endif
 #include "TargetData.h"
+#include "TargetScores.h"
 
 //#define VISION_DEBUG_PRINTF_ENABLE
 #define TARGET_HIGH 0
@@ -92,7 +93,8 @@ private:
 	
 	//Variables
 	ScoresV2 *scores;
-	
+	//TargetScores *m_scores;
+	std::vector<TargetScores> *m_scores;
 	enum Target {
 		High,
 		Middle,
@@ -141,7 +143,7 @@ private:
 	double scoreAspectRatio(BinaryImage *image, ParticleAnalysisReport *report, Target target);
 	double scoreXEdge(BinaryImage *image, ParticleAnalysisReport *report);
 	double scoreYEdge(BinaryImage *image, ParticleAnalysisReport *report);
-	bool scoreCompare(ScoresV2 scores, Target target);
+	bool scoreCompare(TargetScores *scores, Target target);
 	void scoreImage(vector<ParticleAnalysisReport> *reports, BinaryImage *filteredImage, BinaryImage *thresholdedImage);
 	
 	void getTargetStatsOut(ParticleAnalysisReport *report, Target target, BinaryImage *image);

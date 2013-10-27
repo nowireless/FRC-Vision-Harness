@@ -14,7 +14,8 @@ public:
 		k2013Middle,
 		k2013Low,
 		k2013DriverStationLine,
-		k2013Pyramid
+		k2013Pyramid,
+		kNone
 	};
 
 	static double getTargetHeight(Target target);

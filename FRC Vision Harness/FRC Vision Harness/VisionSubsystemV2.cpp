@@ -161,17 +161,18 @@ double VisionSubsystemV2::scoreYEdge(BinaryImage *image, ParticleAnalysisReport 
 	return total;
 }
 
-bool VisionSubsystemV2::scoreCompare(ScoresV2 scores, VisionSubsystemV2::Target target) {
+bool VisionSubsystemV2::scoreCompare(TargetScores *scores, VisionSubsystemV2::Target target) {
 	bool isTarget = true;
-	isTarget &= scores.rectangularity > RECTANGULARITY_LIMIT;
+	isTarget &= scores->GetScore(TargetScores::kRectangularity, TargetData::kNone) > RECTANGULARITY_LIMIT;
 	if (target == High) {
-		isTarget &= scores.aspectRatioOuter > ASPECT_RATIO_LIMIT;
+		isTarget &= scores->GetScore(TargetScores::kRectangularity, TargetData::k2013High) > ASPECT_RATIO_LIMIT;
 	} else if (target == Middle){
-		isTarget &= scores.aspectRatioInner > ASPECT_RATIO_LIMIT;
+		isTarget &= scores->GetScore(TargetScores::kRectangularity, TargetData::k2013Middle) > ASPECT_RATIO_LIMIT;
 	} else {
 		return false;
-	isTarget &= scores.xEdge > X_EDGE_LIMIT;
-	isTarget &= scores.yEdge > Y_EDGE_LIMIT;
+	}
+	isTarget &= scores->GetScore(TargetScores::kXEdge, TargetData::kNone) > X_EDGE_LIMIT;
+	isTarget &= scores->GetScore(TargetScores::kYEdge, TargetData::kNone) > Y_EDGE_LIMIT;
 	
 	return isTarget;
 }
@@ -357,18 +358,25 @@ void VisionSubsystemV2::scoreImage(vector<ParticleAnalysisReport> *reports, Bina
 	if (reports->size() != 0) {
 		for (unsigned i = 0; i < reports->size(); i++) {
 			ParticleAnalysisReport *report = &(reports->at(i));
-			scores[i].rectangularity = VisionSubsystemV2::scoreRectangularity(report);
-			scores[i].aspectRatioOuter = VisionSubsystemV2::scoreAspectRatio(filteredImage, report, High);
-			scores[i].aspectRatioInner = VisionSubsystemV2::scoreAspectRatio(filteredImage, report, Middle);
-			scores[i].xEdge = VisionSubsystemV2::scoreXEdge(thresholdedImage, report);
-			scores[i].yEdge = VisionSubsystemV2::scoreYEdge(thresholdedImage, report);
+			double rectangularityScore		= VisionSubsystemV2::scoreRectangularity(report);
+			double highAspectRatioScore		= VisionSubsystemV2::scoreAspectRatio(filteredImage, report, High);
+			double middleAspectRatioScore	= VisionSubsystemV2::scoreAspectRatio(filteredImage, report, Middle);
+			double xEdgeScore				= VisionSubsystemV2::scoreXEdge(thresholdedImage, report);
+			double yEdgeScore				= VisionSubsystemV2::scoreYEdge(thresholdedImage, report);
 			
-			if (scoreCompare(scores[i], High)) {
+			TargetScores *scoreVec = &(m_scores->at(i));
+			scoreVec->SetScore(TargetScores::kRectangularity, TargetData::kNone,		rectangularityScore);
+			scoreVec->SetScore(TargetScores::kAspect,			TargetData::k2013High,	highAspectRatioScore);
+			scoreVec->SetScore(TargetScores::kAspect,			TargetData::k2013High,	middleAspectRatioScore);
+			scoreVec->SetScore(TargetScores::kXEdge,			TargetData::kNone,		xEdgeScore);
+			scoreVec->SetScore(TargetScores::kYEdge,			TargetData::kNone,		yEdgeScore);
+			
+			if (scoreCompare(&(m_scores->at(i)), High)) {
 				VisionSubsystemV2::getTargetStatsOut(report, High, thresholdedImage);
 				
 				printf("[VisionSubsystemV2] (scoreImage) Hight target Found Partice:%d Distance:%f\n", i, this->highTargetDistance);
 				printf("[VisionSubsystemV2] (scoreImage) Witdth:%d, Hight:%d\n", report->boundingRect.width, report->boundingRect.height);
-			} else if (scoreCompare(scores[i], Middle)) {
+			} else if (scoreCompare(&(m_scores->at(i)), Middle)) {
 				VisionSubsystemV2::getTargetStatsOut(report, Middle, thresholdedImage);
 				printf("[VisionSubsystemV2] (scoreImage) Middle target Found Partice:%d Distance:%f\n", i, this->middleTargetDistance);
 				printf("[VisionSubsystemV2] (scoreImage) Witdth:%d, Hight:%d\n", report->boundingRect.width, report->boundingRect.height);
@@ -420,15 +428,18 @@ void VisionSubsystemV2::processImage(HSLImage *image) {
 
 	vector<ParticleAnalysisReport> *reports = VisionSubsystemV2::particleAnalysisReportOfImage(filteredImage);
 		
-	scores = new ScoresV2[reports->size()];
-		
+	//scores = new ScoresV2[reports->size()];
+	m_scores = new std::vector<TargetScores>(reports->size());
+	//m_scores->reserve(reports->size());
+
 	VisionSubsystemV2::scoreImage(reports, filteredImage, thresholdedImage);
 		
 	delete filteredImage;
 	delete convexHulledImage;
 	delete thresholdedImage;
 	
-	delete scores;
+	//delete scores;
+	delete m_scores;
 	delete reports;
 }
 

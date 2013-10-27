@@ -20,6 +20,11 @@ int _tmain(int argc, char *argv[]) {
 	
 	
 	printf("\n");
+	delete visionSubsystemV2;
+	visionSubsystemV2 = NULL;
+
+	visionSubsystemV2 = new VisionSubsystemV2();
+
 	printf("25Feet.jpg\n");
 	visionSubsystemV2->ProcessImageFromFileSystem("..\\..\\25feet.jpg");
 	printf("High \n\tDistance\t %f\n\tAsimuth \t %f\nMiddle\n \tDistance\t %f\n\tAsimuth \t %f\nSecond Middle\n\tDistance\t %f\n\tAsimuth \t %f",
