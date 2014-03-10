@@ -11,6 +11,7 @@
 #include "../Tests/ImageProcessingTest.h"
 #include "../Tests/ParticleScoringTest.h"
 #include "../Tests/ParticleIdentificationTest.h"
+#include "VisionUI.h"
 
 int main(int argc, char *argv[]) {
 	/*if(argc != 2) {
@@ -44,6 +45,9 @@ int main(int argc, char *argv[]) {
 	particleIDTest->Run();
 	printf("Finished Particle ID Test\n");
 	delete particleIDTest;
+
+	VisionUI *ui = new VisionUI();
+	ui->LoadImage();
 
 	system("pause");
 }
