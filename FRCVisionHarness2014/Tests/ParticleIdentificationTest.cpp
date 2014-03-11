@@ -29,7 +29,7 @@ void ParticleIdentificationTest::Run() {
 
 	printf("[ParticleIdentificationTest] Testing Particle ID\n");
 	ParticleIdentification *particleID = new ParticleIdentification();
-	particleID->IDParticles(scoringTest->GetParticleScores());
+	particleID->IDParticles(scoringTest->GetParticleStageOneScores());
 
 	delete particleID;
 	delete scoringTest;

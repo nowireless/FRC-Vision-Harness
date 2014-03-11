@@ -15,14 +15,18 @@ using namespace std;
 class ParticleIdentification {
 private:
 	vector<ParticleIDReport> *m_particleIDReports;
-	TargetID compareScores(ParticleScoreReport report, int i);
+	vector<ParticleIDReport> *m_particleIDHorizontalReports;
+	vector<ParticleIDReport> *m_particleIDVerticalReports;
+	TargetID compareScores(ParticleStageOneScoreReport report, int i);
 	char* TargetIDToChar(TargetID id);
 public:
 
 	ParticleIdentification();
 	virtual ~ParticleIdentification();
-	void IDParticles(vector<ParticleScoreReport> *scoreReports);
+	void IDParticles(vector<ParticleStageOneScoreReport> *scoreReports);
 	vector<ParticleIDReport> *GetParticleIDReports();
+	vector<ParticleIDReport> *GetHorizontalIDReports();
+	vector<ParticleIDReport> *GetVerticalIDReports();
 };
 
 #endif /* PARTICLEIDENTIFICATION_H_ */

@@ -11,6 +11,14 @@
 ParticleScoring::ParticleScoring() {
 	// TODO Auto-generated constructor stub
 	this->m_particleScores = NULL;
+	this->m_stageTwoScores = NULL;
+	this->m_bestStageTwoScore.leftScore = 0;
+	this->m_bestStageTwoScore.particleHorizontal = 0;
+	this->m_bestStageTwoScore.particleVertical = 0;
+	this->m_bestStageTwoScore.rightScore = 0;
+	this->m_bestStageTwoScore.tapeWidthScore = 0;
+	this->m_bestStageTwoScore.totalScore = 0;
+	this->m_bestStageTwoScore.verticalScore = 0;
 }
 
 ParticleScoring::~ParticleScoring() {
@@ -23,14 +31,14 @@ ParticleScoring::~ParticleScoring() {
 void ParticleScoring::StageOneScoring(BinaryImage *image, vector<ParticleAnalysisReport> *reports) {
 	printf("[ParticleScoring] Starting Stage One\n");
 	printf("[ParticleScoring] Reports Size %i \n", reports->size());
-	if(reports == NULL && reports->size() == 0) {
+	if(reports == NULL || reports->size() == 0) {
 		return;
 	}
 
-	this->m_particleScores = new vector<ParticleScoreReport>;
+	this->m_particleScores = new vector<ParticleStageOneScoreReport>;
 	for(unsigned int i = 0; (i < SCORE_MAXPARTICLES) && (i < reports->size()); i++) {
 		ParticleAnalysisReport *report = &(reports->at(i));
-		ParticleScoreReport scores;
+		ParticleStageOneScoreReport scores;
 
 		scores.rectangularityScore			= scoreRectangularity(report);
 		scores.aspectRatioHorizontalScore	= scoreAspectRatio(image, report, kHorizontal);
@@ -84,6 +92,47 @@ float ParticleScoring::ratioToScore(float ratio) {
 	return (max(0.0, min(min1, min2)));
 }
 
-vector<ParticleScoreReport> *ParticleScoring::GetParticleScores() {
+vector<ParticleStageOneScoreReport> *ParticleScoring::GetParticleStageOneScores() {
 	return this->m_particleScores;
+}
+
+void ParticleScoring::StageTwoScoring(BinaryImage *image, vector<ParticleAnalysisReport> *reports, vector<ParticleIDReport> *verticalIDReports, vector<ParticleIDReport> *horizontalIDReports) {
+	if(image == NULL || verticalIDReports == NULL || horizontalIDReports == NULL || verticalIDReports->size() == 0 || horizontalIDReports->size()) {
+		return;
+	}
+
+	m_bestStageTwoScore.totalScore = m_bestStageTwoScore.leftScore = m_bestStageTwoScore.rightScore = m_bestStageTwoScore.tapeWidthScore = m_bestStageTwoScore.verticalScore = 0;
+
+	for(int i = 0; i < verticalIDReports->size(); i++) {
+		ParticleAnalysisReport *verticalTargetReport = &(reports->at(verticalIDReports->at(i).particleNumber));
+		for(int j = 0; j < horizontalIDReports->size(); j++) {
+			ParticleAnalysisReport *horizontalTargetReport = &(reports->at(horizontalIDReports->at(j).particleNumber));
+			ParticleStageTwoScoreReport scores;
+			double horizWidth, horizHeight, vertWidth, leftScore, rightScore, tapeWidthScore, verticalScore, total;
+
+			//Measure equivalent rectangle sides for use in score calculation
+			imaqMeasureParticle(image->GetImaqImage(), horizontalTargetReport->particleIndex, 0, IMAQ_MT_EQUIVALENT_RECT_LONG_SIDE, &horizWidth);
+			imaqMeasureParticle(image->GetImaqImage(), verticalTargetReport->particleIndex, 0, IMAQ_MT_EQUIVALENT_RECT_SHORT_SIDE, &vertWidth);
+			imaqMeasureParticle(image->GetImaqImage(), horizontalTargetReport->particleIndex, 0, IMAQ_MT_EQUIVALENT_RECT_SHORT_SIDE, &horizHeight);
+
+			//Determine if the horizontal target is in the expected location to the left of the vertical target
+			leftScore = ratioToScore(1.2*(verticalTargetReport->boundingRect.left - horizontalTargetReport->center_mass_x)/horizWidth);
+			//Determine if the horizontal target is in the expected location to the right of the  vertical target
+			rightScore = ratioToScore(1.2*(horizontalTargetReport->center_mass_x - verticalTargetReport->boundingRect.left - verticalTargetReport->boundingRect.width)/horizWidth);
+			//Determine if the width of the tape on the two targets appears to be the same
+			tapeWidthScore = ratioToScore(vertWidth/horizHeight);
+			//Determine if the vertical location of the horizontal target appears to be correct
+			verticalScore = ratioToScore(1-(verticalTargetReport->boundingRect.top - horizontalTargetReport->center_mass_y)/(4*horizHeight));
+			total = leftScore > rightScore ? leftScore:rightScore;
+			total += tapeWidthScore + verticalScore;
+
+
+		}
+	}
+}
+ParticleStageTwoScoreReport *ParticleScoring::GetBestStageTwoScore() {
+	return &this->m_bestStageTwoScore;
+}
+vector<ParticleStageTwoScoreReport> *ParticleScoring::GetStageTwoScoreReports() {
+	return this->m_stageTwoScores;
 }

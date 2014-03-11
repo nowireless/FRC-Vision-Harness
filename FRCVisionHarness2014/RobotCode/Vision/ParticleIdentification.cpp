@@ -7,25 +7,34 @@
 
 #include <Vision/ParticleIdentification.h>
 #include <Vision/VisionConfig.h>
+#include <nivision.h>
 
 ParticleIdentification::ParticleIdentification() {
-	// TODO Auto-generated constructor stub
 	this->m_particleIDReports = NULL;
+	this->m_particleIDHorizontalReports = NULL;
+	this->m_particleIDVerticalReports = NULL;
 
 }
 
 ParticleIdentification::~ParticleIdentification() {
-	// TODO Auto-generated destructor stub
 	if(this->m_particleIDReports != NULL) {
 		delete this->m_particleIDReports;
 	}
+	if(this->m_particleIDHorizontalReports != NULL) {
+		delete this->m_particleIDHorizontalReports;
+	}
+	if(this->m_particleIDVerticalReports != NULL) {
+		delete this->m_particleIDVerticalReports;
+	}
 }
 
-void ParticleIdentification::IDParticles(vector<ParticleScoreReport> *scoreReports) {
+void ParticleIdentification::IDParticles(vector<ParticleStageOneScoreReport> *scoreReports) {
 	if(scoreReports == NULL || scoreReports->size() == 0) {
 		return;
 	}
 	m_particleIDReports = new vector<ParticleIDReport>;
+	m_particleIDHorizontalReports = new vector<ParticleIDReport>;
+	m_particleIDVerticalReports = new vector<ParticleIDReport>;
 	printf("[ParticleIdentification] Starting IDing\n");
 	printf("[ParticleIdentification] Score Report Size %i\n", scoreReports->size());
 	for (int i = 0; i < scoreReports->size(); i++) {
@@ -37,10 +46,21 @@ void ParticleIdentification::IDParticles(vector<ParticleScoreReport> *scoreRepor
 		//printf("[ParticleIdentification] Particle: %i is a %s", TargetIDToChar(idReport.targetID));
 		//printf("[ParticleIdentification] Particle: %i is a %s", TargetIDToChar(kNoTarget));
 		m_particleIDReports->push_back(idReport);
+
+		switch (idReport.targetID) {
+			case TargetID::kHorizontal:
+				m_particleIDHorizontalReports->push_back(idReport);
+				break;
+			case TargetID::kVertical:
+				m_particleIDVerticalReports->push_back(idReport);
+				break;
+			default:
+				break;
+		}
 	}
 }
 
-TargetID ParticleIdentification::compareScores(ParticleScoreReport report, int i) {
+TargetID ParticleIdentification::compareScores(ParticleStageOneScoreReport report, int i) {
 	bool validTarget = true;
 
 	validTarget &= report.rectangularityScore > SCORING_RECTANGULARITY_LIMIT;
@@ -76,4 +96,13 @@ char* ParticleIdentification::TargetIDToChar(TargetID id) {
 
 vector<ParticleIDReport> *ParticleIdentification::GetParticleIDReports() {
 	return this->m_particleIDReports;
+}
+
+
+vector<ParticleIDReport> *ParticleIdentification::GetHorizontalIDReports() {
+	return this->m_particleIDHorizontalReports;
+}
+
+vector<ParticleIDReport> *ParticleIdentification::GetVerticalIDReports() {
+	return this->m_particleIDVerticalReports;
 }

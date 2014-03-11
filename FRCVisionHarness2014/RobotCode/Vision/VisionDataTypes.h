@@ -8,10 +8,20 @@
 #ifndef VISIONDATATYPES_H_
 #define VISIONDATATYPES_H_
 
-struct ParticleScoreReport {
+struct ParticleStageOneScoreReport {
 	float aspectRatioVerticalScore;
 	float aspectRatioHorizontalScore;
 	float rectangularityScore;
+};
+
+struct ParticleStageTwoScoreReport {
+	int particleVertical;
+	int particleHorizontal;
+	float totalScore;
+	float leftScore;
+	float rightScore;
+	float tapeWidthScore;
+	float verticalScore;
 };
 
 enum TargetID {
