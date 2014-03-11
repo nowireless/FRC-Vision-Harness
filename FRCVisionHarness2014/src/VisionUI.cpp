@@ -39,11 +39,11 @@ void VisionUI::LoadImage() {
 		//imaqReadFile(image, imagePath[0], NULL, NULL);
 		printf("Image Path %s\n", imagePath[0]);
 
-		ImageProcessing *imgProc = new ImageProcessing();
+		/*ImageProcessing *imgProc = new ImageProcessing();
 		imgProc->SetThreshold(83, 153, 67, 255, 138, 198);
 		imgProc->ProcessFilesystemImage(imagePath[0],NULL,NULL);
 		image = imgProc->GetFilteredImage()->GetImaqImage();
-
+*/
 		// Display the image
 		imaqMoveWindow(DISPLAY_WINDOW, imaqMakePoint(0, 0));
 		imaqSetWindowPalette(DISPLAY_WINDOW, IMAQ_PALETTE_BINARY, NULL, 0);
@@ -52,10 +52,32 @@ void VisionUI::LoadImage() {
 		// Wait for a key press before exiting
 		printf("Press Enter to exit.\n");
 		getchar();
-		delete imgProc;
+		//delete imgProc;
 		// Dispose resources
 		//imaqDispose (image);
 	}
 
+	imaqDispose(imagePath);
+}
+
+
+bool VisionUI::LoadImagePath() {
+	this->imagePath = imaqLoadImagePopup(NULL,"*.jpg", NULL, "Open Image", FALSE, IMAQ_BUTTON_LOAD,0,0,1,0, &cancelled,NULL);
+	if(!cancelled) {
+		return true;
+	}
+	return false;
+}
+char* VisionUI::GetImagePath() {
+	return this->imagePath[0];
+}
+void VisionUI::CreateWindow(int window) {
+	imaqMoveWindow(window, imaqMakePoint(0,0));
+	imaqSetWindowPalette(window, IMAQ_PALETTE_BINARY, NULL, 0);
+}
+void VisionUI::DisplayImage(ImageBase *image, int window) {
+	imaqDisplayImage(image->GetImaqImage(), window, TRUE);
+}
+void VisionUI::CleanUp() {
 	imaqDispose(imagePath);
 }

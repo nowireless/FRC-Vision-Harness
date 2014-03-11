@@ -11,6 +11,9 @@
 #include "../Tests/ImageProcessingTest.h"
 #include "../Tests/ParticleScoringTest.h"
 #include "../Tests/ParticleIdentificationTest.h"
+#include <Vision/ImageProcessing.h>
+#include <Vision/ParticleScoring.h>
+#include <Vision/ParticleIdentification.h>
 #include "VisionUI.h"
 
 int main(int argc, char *argv[]) {
@@ -18,7 +21,7 @@ int main(int argc, char *argv[]) {
 		printf("Usage: FRCVisionHarness.exe image.jpg\n");
 		return -1;
 	}*/
-	printf("Creating VisionSample2014 instance\n");
+/*	printf("Creating VisionSample2014 instance\n");
 	VisionSample2014 *visionSample2014 = NULL;
 	visionSample2014 = new VisionSample2014();
 
@@ -47,7 +50,35 @@ int main(int argc, char *argv[]) {
 	delete particleIDTest;
 
 	VisionUI *ui = new VisionUI();
-	ui->LoadImage();
+	ui->LoadImage();*/
+
+	VisionUI *ui = new VisionUI();
+
+
+	if(ui->LoadImagePath()) {
+		ui->CreateWindow(0);
+		ImageProcessing *imgProcTest = new ImageProcessing();
+		imgProcTest->SetThreshold(105, 137, 230, 255, 133, 183);
+		imgProcTest->ProcessFilesystemImage(ui->GetImagePath(),NULL, NULL);
+
+		ParticleScoring *scoringTest = new ParticleScoring();
+		scoringTest->StageOneScoring(imgProcTest->GetFilteredImage(), imgProcTest->GetParticleReports());
+
+		printf("[ParticleIdentificationTest] Testing Particle ID\n");
+		ParticleIdentification *particleID = new ParticleIdentification();
+		particleID->IDParticles(scoringTest->GetParticleScores());
+
+		ui->DisplayImage(imgProcTest->GetFilteredImage(), 0);
+
+		delete particleID;
+		delete scoringTest;
+		delete imgProcTest;
+	}
+
+	delete ui;
+
+
+
 
 	system("pause");
 }

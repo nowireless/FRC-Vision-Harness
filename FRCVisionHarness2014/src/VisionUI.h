@@ -8,6 +8,9 @@
 #ifndef VISIONUI_H_
 #define VISIONUI_H_
 
+#include <nivision.h>
+#include <Vision/ImageBase.h>
+
 class VisionUI {
 private:
 	char** imagePath;
@@ -16,6 +19,12 @@ public:
 	VisionUI();
 	virtual ~VisionUI();
 	void LoadImage();
+
+	bool LoadImagePath();
+	char* GetImagePath();
+	void CreateWindow(int window);
+	void DisplayImage(ImageBase *image, int window);
+	void CleanUp();
 };
 
 #endif /* VISIONUI_H_ */
