@@ -97,17 +97,27 @@ vector<ParticleStageOneScoreReport> *ParticleScoring::GetParticleStageOneScores(
 }
 
 void ParticleScoring::StageTwoScoring(BinaryImage *image, vector<ParticleAnalysisReport> *reports, vector<ParticleIDReport> *verticalIDReports, vector<ParticleIDReport> *horizontalIDReports) {
-	if(image == NULL || verticalIDReports == NULL || horizontalIDReports == NULL || verticalIDReports->size() == 0 || horizontalIDReports->size()) {
+	if(image == NULL || verticalIDReports == NULL || horizontalIDReports == NULL || verticalIDReports->size() == 0 || horizontalIDReports->size() == 0) {
 		return;
 	}
 
 	m_bestStageTwoScore.totalScore = m_bestStageTwoScore.leftScore = m_bestStageTwoScore.rightScore = m_bestStageTwoScore.tapeWidthScore = m_bestStageTwoScore.verticalScore = 0;
+
+	m_stageTwoScores = new vector<ParticleStageTwoScoreReport>;
 
 	for(int i = 0; i < verticalIDReports->size(); i++) {
 		ParticleAnalysisReport *verticalTargetReport = &(reports->at(verticalIDReports->at(i).particleNumber));
 		for(int j = 0; j < horizontalIDReports->size(); j++) {
 			ParticleAnalysisReport *horizontalTargetReport = &(reports->at(horizontalIDReports->at(j).particleNumber));
 			ParticleStageTwoScoreReport scores;
+			scores.leftScore = 0;
+			scores.particleHorizontal = 0;
+			scores.particleVertical = 0;
+			scores.rightScore = 0;
+			scores.tapeWidthScore = 0;
+			scores.totalScore = 0;
+			scores.verticalScore = 0;
+
 			double horizWidth, horizHeight, vertWidth, leftScore, rightScore, tapeWidthScore, verticalScore, total;
 
 			//Measure equivalent rectangle sides for use in score calculation
@@ -126,7 +136,27 @@ void ParticleScoring::StageTwoScoring(BinaryImage *image, vector<ParticleAnalysi
 			total = leftScore > rightScore ? leftScore:rightScore;
 			total += tapeWidthScore + verticalScore;
 
+			scores.leftScore = leftScore;
+			scores.rightScore = rightScore;
+			scores.tapeWidthScore = tapeWidthScore;
+			scores.verticalScore = verticalScore;
+			scores.particleHorizontal = j;
+			scores.particleVertical = i;
 
+			printf("[ParticleScoring] Particles V: %i H:%i Scores- Tape: %f, Left: %f, Right: %f, Vertical: %f, Total: %f\n",
+					scores.particleVertical,
+					scores.particleHorizontal,
+					scores.tapeWidthScore,
+					scores.leftScore,
+					scores.rightScore,
+					scores.verticalScore,
+					scores.totalScore
+					);
+
+			if(scores.totalScore >= m_bestStageTwoScore.totalScore) {
+				m_bestStageTwoScore = scores;
+			}
+			m_stageTwoScores->push_back(scores);
 		}
 	}
 }

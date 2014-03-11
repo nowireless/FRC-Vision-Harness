@@ -11,6 +11,7 @@
 #include "../Tests/ImageProcessingTest.h"
 #include "../Tests/ParticleScoringTest.h"
 #include "../Tests/ParticleIdentificationTest.h"
+#include "../Tests/ParticleScoringSageTwoTest.h"
 
 int main(int argc, char *argv[]) {
 	/*if(argc != 2) {
@@ -44,6 +45,12 @@ int main(int argc, char *argv[]) {
 	particleIDTest->Run();
 	printf("Finished Particle ID Test\n");
 	delete particleIDTest;
+
+	ParticleScoringSageTwoTest *scoringTwoTest = new ParticleScoringSageTwoTest();
+	printf("[ParticleScoringStageTwoTest] Starting Test\n");
+	scoringTwoTest->Run();
+	printf("[ParticleScoringStageTwoTest] Finished Test\n");
+	delete scoringTwoTest;
 
 	system("pause");
 }
