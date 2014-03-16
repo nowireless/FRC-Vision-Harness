@@ -13,6 +13,9 @@
 #include "../Tests/ParticleIdentificationTest.h"
 #include "../Tests/ParticleScoringSageTwoTest.h"
 
+#include <Vision/ImageProcessing.h>
+#include <Vision/ParticleScoring.h>
+#include <Vision/ParticleIdentification.h>
 int main(int argc, char *argv[]) {
 	/*if(argc != 2) {
 		printf("Usage: FRCVisionHarness.exe image.jpg\n");
@@ -51,6 +54,36 @@ int main(int argc, char *argv[]) {
 	scoringTwoTest->Run();
 	printf("[ParticleScoringStageTwoTest] Finished Test\n");
 	delete scoringTwoTest;
+
+	VisionUI *ui = new VisionUI();
+	ui->LoadImage();*/
+
+	VisionUI *ui = new VisionUI();
+
+
+	if(ui->LoadImagePath()) {
+		ui->CreateWindow(0);
+		ImageProcessing *imgProcTest = new ImageProcessing();
+		imgProcTest->SetThreshold(105, 137, 230, 255, 133, 183);
+		imgProcTest->ProcessFilesystemImage(ui->GetImagePath(),NULL, NULL);
+
+		ParticleScoring *scoringTest = new ParticleScoring();
+		scoringTest->StageOneScoring(imgProcTest->GetFilteredImage(), imgProcTest->GetParticleReports());
+
+		printf("[ParticleIdentificationTest] Testing Particle ID\n");
+		ParticleIdentification *particleID = new ParticleIdentification();
+		particleID->IDParticles(scoringTest->GetParticleScores());
+
+		ui->DisplayImage(imgProcTest->GetFilteredImage(), 0);
+
+		delete particleID;
+		delete scoringTest;
+		delete imgProcTest;
+	}
+
+	delete ui;
+
+
 
 	system("pause");
 }
