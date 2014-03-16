@@ -12,20 +12,25 @@
 #include "../Tests/ParticleScoringTest.h"
 #include "../Tests/ParticleIdentificationTest.h"
 #include "../Tests/ParticleScoringSageTwoTest.h"
+#include "../Tests/ParticleAnalysisTest.h"
 
 #include <Vision/ImageProcessing.h>
 #include <Vision/ParticleScoring.h>
 #include <Vision/ParticleIdentification.h>
+#include <Vision/ParticleAnalysis.h>
+#include "VisionUI.h"
+
 int main(int argc, char *argv[]) {
 	/*if(argc != 2) {
 		printf("Usage: FRCVisionHarness.exe image.jpg\n");
 		return -1;
 	}*/
+
 	printf("Creating VisionSample2014 instance\n");
 	VisionSample2014 *visionSample2014 = NULL;
 	visionSample2014 = new VisionSample2014();
 
-	//printf("Going to process image [%s]\n", argv[1]);
+	/*//printf("Going to process image [%s]\n", argv[1]);
 	visionSample2014->Autonomous("..\\images\\Center18ft_On2.jpg");
 	printf("Done\n");
 	delete visionSample2014;
@@ -48,34 +53,53 @@ int main(int argc, char *argv[]) {
 	particleIDTest->Run();
 	printf("Finished Particle ID Test\n");
 	delete particleIDTest;
-
-	ParticleScoringSageTwoTest *scoringTwoTest = new ParticleScoringSageTwoTest();
+*/
+/*	ParticleScoringSageTwoTest *scoringTwoTest = new ParticleScoringSageTwoTest();
 	printf("[ParticleScoringStageTwoTest] Starting Test\n");
 	scoringTwoTest->Run();
 	printf("[ParticleScoringStageTwoTest] Finished Test\n");
 	delete scoringTwoTest;
+*/
 
-	VisionUI *ui = new VisionUI();
-	ui->LoadImage();*/
+
 
 	VisionUI *ui = new VisionUI();
 
 
 	if(ui->LoadImagePath()) {
 		ui->CreateWindow(0);
+
 		ImageProcessing *imgProcTest = new ImageProcessing();
 		imgProcTest->SetThreshold(105, 137, 230, 255, 133, 183);
-		imgProcTest->ProcessFilesystemImage(ui->GetImagePath(),NULL, NULL);
+		imgProcTest->ProcessFilesystemImage(ui->GetImagePath(), "..\\TestImages\\Threshold.bmp", "..\\TestImages\\FilteredImage.bmp");
+
+		ui->DisplayImage(imgProcTest->GetFilteredImage(), 0);
 
 		ParticleScoring *scoringTest = new ParticleScoring();
 		scoringTest->StageOneScoring(imgProcTest->GetFilteredImage(), imgProcTest->GetParticleReports());
 
-		printf("[ParticleIdentificationTest] Testing Particle ID\n");
 		ParticleIdentification *particleID = new ParticleIdentification();
-		particleID->IDParticles(scoringTest->GetParticleScores());
+		particleID->IDParticles(scoringTest->GetParticleStageOneScores());
 
-		ui->DisplayImage(imgProcTest->GetFilteredImage(), 0);
+		scoringTest->StageTwoScoring(
+				imgProcTest->GetFilteredImage(),
+				imgProcTest->GetParticleReports(),
+				particleID->GetVerticalIDReports(),
+				particleID->GetHorizontalIDReports()
+				);
 
+		ParticleAnalysis *particleAnalysis = new ParticleAnalysis();
+
+		particleAnalysis->DetectHotSide(scoringTest->GetBestStageTwoScore());
+
+		printf("==========================================\n");
+		if(particleAnalysis->IsHotTargetVisable()) {
+			printf("Hot Target Visible\n");
+		} else {
+			printf("Hot Target Not visible\n");
+		}
+
+		delete particleAnalysis;
 		delete particleID;
 		delete scoringTest;
 		delete imgProcTest;
@@ -84,7 +108,9 @@ int main(int argc, char *argv[]) {
 	delete ui;
 
 
-
+	/*ParticleAnalysisTest *particleAnalysisTest = new ParticleAnalysisTest();
+	particleAnalysisTest->Run();
+	delete particleAnalysisTest;*/
 	system("pause");
 }
 

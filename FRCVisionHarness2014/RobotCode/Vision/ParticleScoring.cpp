@@ -26,6 +26,9 @@ ParticleScoring::~ParticleScoring() {
 	if(this->m_particleScores != NULL) {
 		delete m_particleScores;
 	}
+	if(this->m_stageTwoScores != NULL) {
+		delete m_stageTwoScores;
+	}
 }
 
 void ParticleScoring::StageOneScoring(BinaryImage *image, vector<ParticleAnalysisReport> *reports) {
@@ -127,8 +130,10 @@ void ParticleScoring::StageTwoScoring(BinaryImage *image, vector<ParticleAnalysi
 
 			//Determine if the horizontal target is in the expected location to the left of the vertical target
 			leftScore = ratioToScore(1.2*(verticalTargetReport->boundingRect.left - horizontalTargetReport->center_mass_x)/horizWidth);
+			printf("[ParticleScoring] Left Score:%f, Ratio:%f\n",leftScore,(1.2*(verticalTargetReport->boundingRect.left - horizontalTargetReport->center_mass_x)/horizWidth));
 			//Determine if the horizontal target is in the expected location to the right of the  vertical target
 			rightScore = ratioToScore(1.2*(horizontalTargetReport->center_mass_x - verticalTargetReport->boundingRect.left - verticalTargetReport->boundingRect.width)/horizWidth);
+			printf("[ParticleScoring] Right Score:%f, Ratio:%f\n", rightScore, (1.2*(horizontalTargetReport->center_mass_x - verticalTargetReport->boundingRect.left - verticalTargetReport->boundingRect.width)/horizWidth));
 			//Determine if the width of the tape on the two targets appears to be the same
 			tapeWidthScore = ratioToScore(vertWidth/horizHeight);
 			//Determine if the vertical location of the horizontal target appears to be correct
@@ -158,6 +163,15 @@ void ParticleScoring::StageTwoScoring(BinaryImage *image, vector<ParticleAnalysi
 			}
 			m_stageTwoScores->push_back(scores);
 		}
+		printf("[ParticleScoring] Best Target Score, Particles V: %i H:%i Scores- Tape: %f, Left: %f, Right: %f, Vertical: %f, Total: %f\n",
+				m_bestStageTwoScore.particleVertical,
+				m_bestStageTwoScore.particleHorizontal,
+				m_bestStageTwoScore.tapeWidthScore,
+				m_bestStageTwoScore.leftScore,
+				m_bestStageTwoScore.rightScore,
+				m_bestStageTwoScore.verticalScore,
+				m_bestStageTwoScore.totalScore
+				);
 	}
 }
 ParticleStageTwoScoreReport *ParticleScoring::GetBestStageTwoScore() {
